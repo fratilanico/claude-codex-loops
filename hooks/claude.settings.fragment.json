@@ -1,0 +1,29 @@
+{
+  "_comment": "FRAGMENT — install.sh deep-merges these entries into .claude/settings.json; it is NOT a full settings file and must never clobber existing hooks. All commands are repo-relative (resolved from the repo root at run time), never absolute. SessionStart runs a bounded probe that touches nothing and can never fail the session (|| true, short timeout). Stop runs ONE bounded tick, and only when CCL_TICK_ON_STOP=1 is set — off by default.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "_ccl": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./packages/claude-codex-loops/bin/loop.mjs status || true",
+            "timeout": 8
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_ccl": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CCL_TICK_ON_STOP\" = \"1\" ] && node ./packages/claude-codex-loops/bin/loop-tick.mjs || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

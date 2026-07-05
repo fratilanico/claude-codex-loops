@@ -1,0 +1,24 @@
+name: ci
+
+# Runs inside the SPLIT repo (where this pack is the repo root). Exercises the
+# pack-internal hygiene gate and, once later waves land, the inline-copy-parity
+# byte-compare — so a downstream fork cannot silently drift the inline workflow
+# copies away from core/, and cannot introduce escaping paths / secret shapes.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    # macOS: the pack is macOS/launchd-only (install.sh refuses non-Darwin), so the
+    # install.sh lifecycle tests need a Darwin runner to exercise the real path.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install
+      - run: npm test

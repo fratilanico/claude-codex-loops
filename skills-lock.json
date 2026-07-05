@@ -1,0 +1,42 @@
+{
+  "_comment": "Portable evidence for the pack skills. Each entry records the subtree source, the SKILL.md path relative to the pack root, and the sha256 of that SKILL.md. The skills-lock.test.ts recomputes each hash and fails on any drift. At ship time the `source` slug is set to the published pack repo (a documented one-line edit); until then it names the pack itself.",
+  "sourceType": "subtree",
+  "source": "claude-codex-loops",
+  "skills": [
+    {
+      "name": "pingpong",
+      "sourceType": "subtree",
+      "source": "claude-codex-loops",
+      "skillPath": "skills/pingpong/SKILL.md",
+      "computedHash": "sha256:335dcb3379527a4e2aa677f81b246a878fec096cc525d7ca3e9b29916eae2d6e"
+    },
+    {
+      "name": "pingpong-pr",
+      "sourceType": "subtree",
+      "source": "claude-codex-loops",
+      "skillPath": "skills/pingpong-pr/SKILL.md",
+      "computedHash": "sha256:42fc8c73c5fa3cb3f42789dc5ceb1cd248877103e2a2bcadde74631618beaf31"
+    },
+    {
+      "name": "pingpong-install",
+      "sourceType": "subtree",
+      "source": "claude-codex-loops",
+      "skillPath": "skills/pingpong-install/SKILL.md",
+      "computedHash": "sha256:a1a7a1b0d183b1c8688853b8e044220886b36408cb83865461bc27db763fb8ea"
+    },
+    {
+      "name": "ccl-loop",
+      "sourceType": "subtree",
+      "source": "claude-codex-loops",
+      "skillPath": "skills/ccl-loop/SKILL.md",
+      "computedHash": "sha256:d5923a09cfc7808dadcefa4e943f8a484787428b9446c026367562dd013f9546"
+    },
+    {
+      "name": "research-loop",
+      "sourceType": "subtree",
+      "source": "claude-codex-loops",
+      "skillPath": "skills/research-loop/SKILL.md",
+      "computedHash": "sha256:3a4b3bccafbb6e1c8f45d77fa50807f05d57fcbbc5f3390b1ae0992bc7e11815"
+    }
+  ]
+}

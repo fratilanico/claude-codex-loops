@@ -1,0 +1,30 @@
+{
+  "_comment": "Example claude-codex-loops config. Copy to <repo>/.claude-codex-loops.json and edit. ALL keys are optional — every value below is the built-in default (precedence: DEFAULTS < this file < env < CLI flag). ZERO secrets live here: the pack drives the git / gh / claude / codex CLIs under their own logins and neither needs nor accepts any provider API key.",
+
+  "repoScope": "",
+  "peer": "codex",
+  "branchPrefix": "refs/remotes/origin/codex",
+  "fetchRefspec": "+refs/heads/codex/*:refs/remotes/origin/codex/*",
+  "claudeBranchPrefix": "claude/",
+
+  "stateDir": ".agent-loops",
+  "ledgerDir": "docs/reviews",
+
+  "intervalSeconds": 600,
+  "maxAckFindings": 20,
+  "watchWindowHours": 24,
+  "fetch": false,
+
+  "pingpong": {
+    "maxRounds": 4,
+    "staleAfterHours": 48,
+    "maxPacketFindings": 30
+  },
+
+  "triage": {
+    "maxRounds": 3
+  },
+
+  "disabled": false,
+  "tickOnStop": false
+}

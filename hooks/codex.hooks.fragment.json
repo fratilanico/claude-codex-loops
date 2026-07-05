@@ -1,0 +1,18 @@
+{
+  "_comment": "FRAGMENT — install.sh DEEP-MERGES this SessionStart entry into a repo's .codex/hooks.json; it is NOT a full hooks file and must never clobber an existing hook (e.g. a foreign SessionStart entry is preserved; this entry is appended alongside it). The command is repo-relative (resolved from the repo root at run time), never absolute. It runs a bounded probe that touches nothing and can never fail the session (|| true, short timeout). The _ccl marker tags this entry for selective uninstall.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "_ccl": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ./packages/claude-codex-loops/bin/watch-codex.mjs --repo . || true",
+            "timeout": 8,
+            "statusMessage": "claude-codex-loops: scan peer review findings"
+          }
+        ]
+      }
+    ]
+  }
+}

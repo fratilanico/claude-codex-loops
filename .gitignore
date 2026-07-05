@@ -1,0 +1,6 @@
+# Per-clone loop state (never shipped, never committed).
+.agent-loops/
+
+# Node
+node_modules/
+*.log

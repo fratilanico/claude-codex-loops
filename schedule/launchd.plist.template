@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd job template for one claude-codex-loops tick per interval.
+  install.sh substitutes the five double-brace tokens listed below and writes the
+  result to ~/Library/LaunchAgents/<label>.plist, then loads it with launchctl.
+
+  This is NOT a daemon: KeepAlive is false and the program is a single bounded
+  tick that exits 0 and returns. launchd re-runs it every StartInterval seconds
+  (the pack's external cadence — the tick never self-schedules).
+
+  {{LABEL}}     unique per clone: com.claude-codex-loops.<repo-basename>-<abspath-hash8>
+  {{NODE_BIN}}  ABSOLUTE path to the node interpreter, resolved by install.sh via
+                `command -v node`. launchd starts jobs with a minimal PATH that does
+                NOT include Homebrew, so a bare `/usr/bin/env node` would fail to
+                find node and every scheduled tick would silently die — the
+                interpreter MUST be an absolute path.
+  {{PACK_ROOT}} absolute path to the installed pack (holds bin/loop-tick.mjs)
+  {{REPO_ROOT}} absolute path to the consumer git repo (the tick's working dir)
+  {{INTERVAL}}  StartInterval seconds (floored to >= 60 by install.sh)
+  {{STATE_DIR}} per-clone loop state dir name (relative to the repo root)
+-->
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>{{LABEL}}</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>{{NODE_BIN}}</string>
+      <string>{{PACK_ROOT}}/bin/loop-tick.mjs</string>
+      <string>--agent</string>
+      <string>claude</string>
+      <string>--repo</string>
+      <string>{{REPO_ROOT}}</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>{{REPO_ROOT}}</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>CCL_STATE_DIR</key>
+      <string>{{STATE_DIR}}</string>
+    </dict>
+
+    <key>StartInterval</key>
+    <integer>{{INTERVAL}}</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <false/>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>StandardOutPath</key>
+    <string>{{REPO_ROOT}}/{{STATE_DIR}}/launchd.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>{{REPO_ROOT}}/{{STATE_DIR}}/launchd.err.log</string>
+  </dict>
+</plist>
