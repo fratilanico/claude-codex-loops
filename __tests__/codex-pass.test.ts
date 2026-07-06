@@ -77,6 +77,30 @@ describe("bin/codex-pass.mjs: brakes and graceful failure (no real codex ever sp
     }
   });
 
+  it("honors the kill switch under a config-file stateDir (same layer loop-tick reads)", () => {
+    const repo = makeRepo();
+    try {
+      // Repo configures a non-default stateDir via .claude-codex-loops.json — the
+      // FILE layer loop-tick honors. The DISABLED file lives under THAT dir.
+      writeFileSync(
+        join(repo, ".claude-codex-loops.json"),
+        JSON.stringify({ stateDir: ".ccl-state" }),
+        "utf8"
+      );
+      mkdirSync(join(repo, ".ccl-state"), { recursive: true });
+      writeFileSync(join(repo, ".ccl-state", "DISABLED"), "demo\n", "utf8");
+      const r = spawnSync(process.execPath, [BIN, "--repo", repo], {
+        encoding: "utf8",
+        env: { ...process.env, PATH: "/usr/bin:/bin", CCL_STATE_DIR: "" }, // no env override, no codex
+        timeout: 15_000,
+      });
+      expect(r.status).toBe(0);
+      expect(r.stdout + r.stderr).toMatch(/kill switch/i);
+    } finally {
+      rmSync(repo, { recursive: true, force: true });
+    }
+  });
+
   it("fails fast and helpfully when the codex CLI is absent", () => {
     const repo = makeRepo();
     try {

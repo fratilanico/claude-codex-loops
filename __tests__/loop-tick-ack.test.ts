@@ -169,4 +169,26 @@ describe("loop-tick consumes peer CCL-EXIT lines and advances the ping-pong stat
     // A read-only probe created no state dir at all.
     expect(existsSync(join(repo, ".agent-loops"))).toBe(false);
   });
+
+  // Codex P2: a --probe with fetch ENABLED (CODEX_LOOP_FETCH=1) must NOT run
+  // git fetch — that would write .git/FETCH_HEAD and remote-tracking refs,
+  // mutating the clone just by printing a digest (violates "touch NOTHING").
+  it("--probe with fetch enabled does not fetch (no .git/FETCH_HEAD written)", () => {
+    // A real origin remote so `git fetch origin <refspec>` would actually run.
+    const remote = mkdtempSync(join(tmpdir(), "ccl-tick-remote-"));
+    execFileSync("git", ["init", "-q", "--bare", remote], { encoding: "utf8" });
+    git(["remote", "add", "origin", remote]);
+    git(["push", "-q", "origin", "HEAD"]);
+
+    const r = spawnSync(process.execPath, [TICK, "--repo", repo, "--probe"], {
+      encoding: "utf8",
+      env: { ...process.env, HOME: emptyHome, CODEX_LOOP_FETCH: "1" },
+      timeout: 30_000,
+    });
+    expect(r.status).toBe(0);
+    // If the probe had fetched, git would have written .git/FETCH_HEAD.
+    expect(existsSync(join(repo, ".git", "FETCH_HEAD"))).toBe(false);
+
+    rmSync(remote, { recursive: true, force: true });
+  });
 });

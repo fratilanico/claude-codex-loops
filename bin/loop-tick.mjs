@@ -197,8 +197,11 @@ function readExitStates(findingsLog) {
 }
 
 // ── PULL 2: peer branch ahead/behind ──────────────────────────────────────────
-function branchStates(git, cfg) {
-  if (cfg.fetch) git(["fetch", "--quiet", "origin", cfg.fetchRefspec]);
+function branchStates(git, cfg, dryRun) {
+  // In dry-run (--probe / --digest-only) the tick must touch NOTHING on disk. A
+  // git fetch writes .git/FETCH_HEAD and remote-tracking refs, so it is skipped
+  // here even when cfg.fetch is on — the digest is read-only over existing refs.
+  if (cfg.fetch && !dryRun) git(["fetch", "--quiet", "origin", cfg.fetchRefspec]);
   const out = git(["for-each-ref", "--format=%(refname:short)", cfg.branchPrefix]);
   const branches = out ? out.split("\n").filter(Boolean) : [];
   return branches.map((b) => {
@@ -267,7 +270,7 @@ function tick(repoRoot, cfg, args) {
   const terminalReached = latestNewExit && isTerminal(nextThread) ? nextThread.phase : null;
 
   // PULL branch states + DIFF (surface branches where the PEER moved, not us).
-  const branches = branchStates(git, cfg);
+  const branches = branchStates(git, cfg, dryRun);
   const movedBranches = branches.filter((b) => {
     const prev = (last.branches || []).find((p) => p.branch === b.branch);
     return !prev || prev.codexAhead !== b.codexAhead;
