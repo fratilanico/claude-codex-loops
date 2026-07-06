@@ -24,7 +24,10 @@ import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
 
 const PACK_DIR = join(__dirname, "..");
-const SKIP_DIRS = new Set([".git", "node_modules", ".agent-loops"]);
+// .claude/.codex are install.sh OUTPUT (skill copies + .ccl-pack-root pointer
+// files carrying machine-local absolute paths) — runtime artifacts, not pack
+// source, so a self-installed clone must not fail its own hygiene gate.
+const SKIP_DIRS = new Set([".git", "node_modules", ".agent-loops", ".claude", ".codex"]);
 // Generated lockfiles are third-party integrity hashes (high-entropy base64
 // that trivially collides with the JWT/token-shape needles). They are not pack
 // source, so they are out of scope for source hygiene.
