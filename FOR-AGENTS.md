@@ -119,6 +119,36 @@ Decision tree — which side are you:
 Full round: **commit → tick → Codex review → CCL-FINDING → tick → Claude ack →
 quiet.** It terminates or escalates on its own via the brakes above.
 
+### Driving the Codex peer headless (`codex exec`) — three proven gotchas
+
+Verified live (a full seeded-bug → `CCL-FINDING` → fix → `CCL-EXIT converged`
+round was driven end-to-end with codex-cli 0.142.5). If you script the Codex
+side instead of opening an interactive session:
+
+```
+codex exec --ignore-user-config -s read-only -C <repo> \
+  --dangerously-bypass-hook-trust \
+  "Execute exactly ONE review pass per the ccl contract in AGENTS.md. Then stop." \
+  < /dev/null
+```
+
+1. **Always redirect stdin (`< /dev/null`).** With a non-TTY, never-closing
+   stdin (any scripted spawn), `codex exec` prints "Reading additional input
+   from stdin..." and blocks forever BEFORE creating a session. This presents
+   as a silent multi-minute hang with no rollout file.
+2. **Bypass hook trust in headless runs.** Install merges a SessionStart hook
+   into the repo's `.codex/hooks.json`; interactive Codex prompts once to trust
+   it, but headless `exec` cannot answer the prompt and hangs. Pass
+   `--dangerously-bypass-hook-trust` (the hook it trusts is this pack's own
+   `watch-codex` scan).
+3. **Skip heavy user config.** `--ignore-user-config` avoids multi-minute MCP
+   server cold-starts from `~/.codex/config.toml`; auth still works.
+
+Timing note: the launchd tick re-anchors `lastAckSha` at HEAD every interval,
+so start the Codex pass within one interval of the Claude-side commit (or pause
+the launchd job for the round) — otherwise the peer correctly sees an empty
+diff and exits `quiet`.
+
 ## 5. Inspect / stop
 
 ```
