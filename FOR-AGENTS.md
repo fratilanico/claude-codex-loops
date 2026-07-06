@@ -123,14 +123,16 @@ quiet.** It terminates or escalates on its own via the brakes above.
 
 Verified live (a full seeded-bug → `CCL-FINDING` → fix → `CCL-EXIT converged`
 round was driven end-to-end with codex-cli 0.142.5). If you script the Codex
-side instead of opening an interactive session:
+side instead of opening an interactive session, use the bundled driver — it
+bakes in every safeguard below so none is ever hand-typed:
 
 ```
-codex exec --ignore-user-config -s read-only -C <repo> \
-  --dangerously-bypass-hook-trust \
-  "Execute exactly ONE review pass per the ccl contract in AGENTS.md. Then stop." \
-  < /dev/null
+node <pack>/skills/pingpong/codex-pass.mjs --repo .                       # one review pass
+node <pack>/skills/pingpong/codex-pass.mjs --repo . --confirm "<finding>" # confirmation pass
 ```
+
+It honors the kill switch first, fails fast if the codex CLI is missing, and
+hard-times-out (default 300s, `--timeout <s>`). The safeguards it encodes:
 
 1. **Always redirect stdin (`< /dev/null`).** With a non-TTY, never-closing
    stdin (any scripted spawn), `codex exec` prints "Reading additional input
